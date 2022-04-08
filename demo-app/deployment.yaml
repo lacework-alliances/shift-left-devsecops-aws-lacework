@@ -11,8 +11,18 @@ spec:
       labels:
         app:  demo-app
     spec:
+      initContainers:
+        - image: lacework/datacollector:latest-sidecar
+          imagePullPolicy: Always
+          name: lw-agent-sidecar
+          volumeMounts:
+            - name: lacework-volume
+              mountPath: /lacework-data
+          command: [ "/bin/sh" ]
+          args: [ "-c", "cp -r /var/lib/lacework-backup/* /lacework-data" ]
       containers:
         - name:  demo-app
+          command: ["/var/lib/lacework-backup/lacework-sidecar.sh"]
           image: imageName # IMPORTANT: Update!
           imagePullPolicy: Always
           ports:
@@ -20,6 +30,39 @@ spec:
               name: https
             - containerPort: 80
               name: http
+          volumeMounts:
+            - name: lacework-volume
+              mountPath: /var/lib/lacework-backup
+            - name: cfgmap
+              mountPath: /var/lib/lacework/config
+            - name: podinfo
+              mountPath: /etc/podinfo
+          env:
+            - name: LW_KUBERNETES_NODENAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: LW_EXECUTION_ENV
+              value: "EKS_FARGATE"
+      volumes:
+        - name: lacework-volume
+          emptyDir: { }
+        - name: cfgmap
+          configMap:
+            name: lacework-config
+            items:
+              - key: config.json
+                path: config.json
+        - name: podinfo
+          downwardAPI:
+            items:
+              - path: "labels"
+                fieldRef:
+                  fieldPath: metadata.labels
+              - path: "annotations"
+                fieldRef:
+                  fieldPath: metadata.annotations
       imagePullSecrets:
         - name: regcred
 ---
