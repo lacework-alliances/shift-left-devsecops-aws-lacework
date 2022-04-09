@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: demo-app
+  name: lacework-config
+data:
+  config.json: |
+    {"tokens":{"AccessToken":"YOUR ACCESS TOKEN"}, "tags":{"Env":"k8s", "KubernetesCluster": "eksclustername"}}
