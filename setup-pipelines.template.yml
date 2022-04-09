@@ -11,7 +11,7 @@ Metadata:
           - GitHubRepo
           - GitHubBranch
           - GitHubBranch
-          - ECRDemoAppRepository
+          - ECRRegistry
           - FargateEKSCluster
     ParameterLabels:
       GitHubAccessToken:
@@ -22,7 +22,7 @@ Metadata:
         default: GitHub Repository
       GitHubBranch:
         default: GitHub Branch
-      ECRDemoAppRepository:
+      ECRRegistry:
         default: ECR Demo App Repository
       FargateEKSCluster:
         default: Fargate EKS Cluster
@@ -51,7 +51,7 @@ Parameters:
     Description: "You probably won't change this. In case you change the branch, enter it here."
     Default: master
     AllowedPattern: "[A-Za-z0-9-]+"
-  ECRDemoAppRepository:
+  ECRRegistry:
     Type: String
     Description: "Enter your ECR registry."
     Default: 911290716430.dkr.ecr.us-west-2.amazonaws.com
@@ -252,7 +252,7 @@ Resources:
           - Name: IMAGE_NAME
             Value: demo-app
           - Name: DOCKER_REG
-            Value: !Ref ECRDemoAppRepository
+            Value: !Ref ECRRegistry
       ServiceRole: !Ref CodeBuildServiceRole
 
   CodeBuildDeployEksProject:
@@ -275,7 +275,7 @@ Resources:
           - Name: AWS_REGION
             Value: !Ref AWS::Region
           - Name: DOCKER_REG
-            Value: !Ref ECRDemoAppRepository
+            Value: !Ref ECRRegistry
           - Name: EKS_CLUSTER
             Value: !Ref FargateEKSCluster
           - Name: IMAGE_NAME
