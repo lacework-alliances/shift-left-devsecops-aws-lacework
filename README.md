@@ -2,7 +2,11 @@
 
 This GitHub repository contains the code that demonstrates how to use AWS and Lacework to build, secure, test and deploy an NPM application. For more detail, check out the [blog post](TBD).
 
-![pipeline](x1r-LKQkYDap_qmsJU4cXIMh0S07HP3cqH)
+### CI/CD Pipeline
+![pipeline](https://user-images.githubusercontent.com/6440106/162585518-ce3b1b5e-7e55-4b29-a056-51c466a54aaf.png)
+
+### Architecture
+![architecture](https://user-images.githubusercontent.com/6440106/162585599-d2325b3c-8cc0-46e2-8211-aee0f938bb2b.png)
 
 # Demo App Local Development
 
