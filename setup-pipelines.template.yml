@@ -23,7 +23,7 @@ Metadata:
       GitHubBranch:
         default: GitHub Branch
       ECRRegistry:
-        default: ECR Demo App Repository
+        default: ECR Registry
       FargateEKSCluster:
         default: Fargate EKS Cluster
 
@@ -337,7 +337,7 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuildDeployEksProject
               InputArtifacts:
-                - Name: BuildOutput
+                - Name: SourceArtifacts
               OutputArtifacts:
                 - Name: DeployOutput
               RunOrder: 3
