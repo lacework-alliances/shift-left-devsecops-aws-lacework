@@ -6,33 +6,66 @@ Metadata:
       - Label:
           default: "Basic Configuration"
         Parameters:
-          - S3KeyPrefix
+          - GitHubAccessToken
+          - GitHubOwner
+          - GitHubRepo
+          - GitHubBranch
+          - GitHubBranch
+          - ECRDemoAppRepository
+          - FargateEKSCluster
     ParameterLabels:
-      S3KeyPrefix:
-        default: CloudFormation S3 Key Prefix
+      GitHubAccessToken:
+        default: GitHub Access Token
+      GitHubOwner:
+        default: GitHub Owner Username
+      GitHubRepo:
+        default: GitHub Repository
+      GitHubBranch:
+        default: GitHub Branch
+      ECRDemoAppRepository:
+        default: ECR Demo App Repository
+      FargateEKSCluster:
+        default: Fargate EKS Cluster
+
 
 Parameters:
-  S3KeyPrefix:
+  GitHubAccessToken:
     Type: String
-    Default: gametech-demo
-    MinLength: '1'
-    Description: "S3 key prefix for assets directory. Use this if you want to customize your deployment. The prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slashes (/). For more information, see https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html."
-
+    Description: "Enter your GitHub Personal Access Token. Use scopes, select admin:repo_hook and repo. https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token"
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    AllowedPattern: '[a-z0-9]*'
+  GitHubOwner:
+    Type: String
+    Description: "Enter your GitHub username. You're the owner of the forked repo."
+    Default: jefferyfry
+    AllowedPattern: "[A-Za-z0-9-]+"
+  GitHubRepo:
+    Type: String
+    Description: "You probably won't change this. In case you change the repo name, enter it here."
+    Default: shift-left-devsecops-aws-lacework
+    AllowedPattern: "[A-Za-z0-9-]+"
+  GitHubBranch:
+    Type: String
+    Description: "You probably won't change this. In case you change the branch, enter it here."
+    Default: master
+    AllowedPattern: "[A-Za-z0-9-]+"
+  ECRDemoAppRepository:
+    Type: String
+    Description: "Enter your ECR registry."
+    Default: 911290716430.dkr.ecr.us-west-2.amazonaws.com
+    AllowedPattern: "[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)"
+  FargateEKSCluster:
+    Type: String
+    Description: "Enter the name of the Fargate EKS Cluster that you created."
+    Default: aws-devsecops
+    AllowedPattern: "[A-Za-z0-9-]+"
 Resources:
   ArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${AWS::AccountId}-gametech-demo-devsecops-eks-artifact-bucket"
-
-  ECRDemoAppRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "demo-app"
-
-  ECRLog4jAppRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "log4j-app"
+      BucketName: "shift-left-devsecops-aws-lacework-artifact-bucket"
 
   PermissionForEventsToInvokePipeline:
     Type: AWS::IAM::Policy
@@ -201,6 +234,8 @@ Resources:
   CodeBuildBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
+      Name: shift-left-devsecops-aws-lacework-codebuild-build
+      Description: "CodeBuild, Lacework Scan, Push to ECR"
       Artifacts:
         Type: CODEPIPELINE
       Source:
@@ -217,15 +252,13 @@ Resources:
           - Name: IMAGE_NAME
             Value: demo-app
           - Name: DOCKER_REG
-            Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com"
-      Name: !Sub ${AWS::AccountId}-codebuild-build
-      Description: "CodeBuild, Lacework Scan, Push to ECR"
+            Value: !Ref ECRDemoAppRepository
       ServiceRole: !Ref CodeBuildServiceRole
 
   CodeBuildDeployEksProject:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: !Sub ${AWS::AccountId}-codebuild-deploy-eks
+      Name: shift-left-devsecops-aws-lacework-codebuild-deploy-eks
       Description: "Deploy to EKS"
       Artifacts:
         Type: CODEPIPELINE
@@ -242,9 +275,9 @@ Resources:
           - Name: AWS_REGION
             Value: !Ref AWS::Region
           - Name: DOCKER_REG
-            Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com"
+            Value: !Ref ECRDemoAppRepository
           - Name: EKS_CLUSTER
-            Value: !Sub "${AWS::AccountId}-gametech-eks"
+            Value: !Ref FargateEKSCluster
           - Name: IMAGE_NAME
             Value: demo-app
           - Name: IMAGE_TAG
@@ -263,17 +296,20 @@ Resources:
         - Name: Source
           Actions:
             - Name: App
-              ActionTypeId:
-                Category: Source
-                Owner: AWS
-                Version: 1
-                Provider: S3
-              Configuration:
-                S3Bucket: !Sub "${AWS::AccountId}-app-bucket"
-                S3ObjectKey: !Sub "${S3KeyPrefix}/app/app.zip"
-                PollForSourceChanges: false
-              OutputArtifacts:
-                - Name: App
+              InputArtifacts: [ ]
+                ActionTypeId:
+                  Category: Source
+                  Owner: ThirdParty
+                  Version: 1
+                  Provider: GitHub
+                OutputArtifacts:
+                  - Name: SourceCode
+                Configuration:
+                  Owner: !Ref GitHubOwner
+                  Repo: !Ref GitHubRepo
+                  Branch: !Ref GitHubBranch
+                  PollForSourceChanges: false
+                  OAuthToken: !Ref GitHubAccessToken
               RunOrder: 1
         - Name: Build
           Actions:
