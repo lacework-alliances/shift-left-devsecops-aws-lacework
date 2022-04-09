@@ -287,7 +287,7 @@ Resources:
   EKSPipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: !Sub ${AWS::AccountId}-codepipeline-eks
+      Name: shift-left-devsecops-aws-lacework-codepipeline-eks
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
       ArtifactStore:
         Type: S3
@@ -303,7 +303,7 @@ Resources:
                 Version: 1
                 Provider: GitHub
               OutputArtifacts:
-                - Name: SourceCode
+                - Name: SourceArtifacts
               Configuration:
                 Owner: !Ref GitHubOwner
                 Repo: !Ref GitHubRepo
@@ -322,7 +322,7 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuildBuildProject
               InputArtifacts:
-                - Name: App
+                - Name: SourceArtifacts
               OutputArtifacts:
                 - Name: BuildOutput
               RunOrder: 2
@@ -337,7 +337,7 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuildDeployEksProject
               InputArtifacts:
-                - Name: App
+                - Name: BuildOutput
               OutputArtifacts:
                 - Name: DeployOutput
               RunOrder: 3

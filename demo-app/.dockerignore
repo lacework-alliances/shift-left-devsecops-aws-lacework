@@ -1,9 +1,0 @@
-dist
-.idea
-.git
-.gitignore
-codebuild-deploy-eks.yaml
-codebuild-scan-push.yaml
-codebuild-log4j-push.yaml
-codebuild-deploy-log4j.yaml
-
