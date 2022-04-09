@@ -35,7 +35,7 @@ Parameters:
     NoEcho: true
     MinLength: 40
     MaxLength: 40
-    AllowedPattern: '[a-z0-9]*'
+    AllowedPattern: "[a-z0-9]*"
   GitHubOwner:
     Type: String
     Description: "Enter your GitHub username. You're the owner of the forked repo."
@@ -55,7 +55,7 @@ Parameters:
     Type: String
     Description: "Enter your ECR registry."
     Default: 911290716430.dkr.ecr.us-west-2.amazonaws.com
-    AllowedPattern: "[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)"
+    AllowedPattern: "[^\\s/$.?#].[^\\s]*$"
   FargateEKSCluster:
     Type: String
     Description: "Enter the name of the Fargate EKS Cluster that you created."
@@ -297,19 +297,19 @@ Resources:
           Actions:
             - Name: App
               InputArtifacts: [ ]
-                ActionTypeId:
-                  Category: Source
-                  Owner: ThirdParty
-                  Version: 1
-                  Provider: GitHub
-                OutputArtifacts:
-                  - Name: SourceCode
-                Configuration:
-                  Owner: !Ref GitHubOwner
-                  Repo: !Ref GitHubRepo
-                  Branch: !Ref GitHubBranch
-                  PollForSourceChanges: false
-                  OAuthToken: !Ref GitHubAccessToken
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              OutputArtifacts:
+                - Name: SourceCode
+              Configuration:
+                Owner: !Ref GitHubOwner
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                PollForSourceChanges: false
+                OAuthToken: !Ref GitHubAccessToken
               RunOrder: 1
         - Name: Build
           Actions:
