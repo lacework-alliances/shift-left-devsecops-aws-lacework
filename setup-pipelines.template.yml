@@ -240,7 +240,7 @@ Resources:
         Type: CODEPIPELINE
       Source:
         Type: CODEPIPELINE
-        BuildSpec: "codebuild-scan-push.yaml"
+        BuildSpec: "codebuild-scan-push.yml"
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: "aws/codebuild/standard:5.0"
@@ -264,7 +264,7 @@ Resources:
         Type: CODEPIPELINE
       Source:
         Type: CODEPIPELINE
-        BuildSpec: "codebuild-deploy-eks.yaml"
+        BuildSpec: "codebuild-deploy-eks.yml"
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: "aws/codebuild/standard:5.0"
