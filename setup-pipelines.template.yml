@@ -10,7 +10,6 @@ Metadata:
           - GitHubOwner
           - GitHubRepo
           - GitHubBranch
-          - GitHubBranch
           - ECRRegistry
           - FargateEKSCluster
     ParameterLabels:
